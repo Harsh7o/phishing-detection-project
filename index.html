@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phishing Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- ----------------- What is Phishing ----------------- -->
+<div class="phishing-section scroll-section">
+    <div class="phishing-image">
+        <img src="{{ url_for('static', filename='question.png') }}">
+    </div>
+    <div class="phishing-text">
+        <h1 class="fade-in">What is Phishing?</h1>
+        <h4 class="fade-in">
+            <b>Phishing</b> is a type of <b>cyber attack</b> that involves sending
+            <b>emails or messages</b> to trick people into revealing
+            <b>sensitive information</b>, such as
+            <b>passwords or credit card numbers.</b>
+        </h4>
+    </div>
+</div>
+
+<hr>
+
+<!-- ----------------- How to Detect ----------------- -->
+<div class="detect-section scroll-section">
+    <div class="detect-text">
+        <h1 class="fade-in">How to Detect Phishing?</h1>
+        <h4 class="fade-in">
+            This tool uses Machine Learning to analyze URL patterns and detect phishing websites.
+            A trained model evaluates the input URL and predicts whether it is legitimate or malicious in real time.
+        </h4>
+    </div>
+    <div class="detect-image">
+        <img src="{{ url_for('static', filename='phishing.png') }}">
+    </div>
+</div>
+
+<hr>
+
+<!-- ----------------- How Model Works ----------------- -->
+<section class="model-section scroll-section">
+    <div class="model-content">
+        <h1 class="fade-in">How Our Model Works</h1>
+        <h4 class="fade-in">
+            Our phishing detection system is powered by a Machine Learning model trained on a dataset of legitimate and phishing URLs.
+            <br><br>
+            The model analyzes important URL characteristics such as domain structure, length, presence of suspicious symbols, and abnormal patterns.
+            <br><br>
+            When a user enters a URL, these features are extracted and passed to the trained model, which predicts whether the website is safe or malicious in real time.
+        </h4>
+    </div>
+</section>
+
+<!-- ----------------- Model Diagram ----------------- -->
+<div class="model-diagram scroll-section">
+    <div class="step"><h3>1</h3><p>User enters URL</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><h3>2</h3><p>Feature Extraction</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><h3>3</h3><p>ML Model Analysis</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><h3>4</h3><p>Prediction Result</p></div>
+</div>
+
+<hr>
+
+<!-- ----------------- URL Detector ----------------- -->
+<div class="url-section scroll-section">
+    <h1 class="fade-in">Phishing URL Detector</h1>
+    <form id="urlForm" class="url-form">
+        <input type="text" id="urlInput" placeholder="Enter URL" required>
+        <button type="submit">Check</button>
+    </form>
+    <div id="result"></div>
+</div>
+
+<!-- ----------------- Footer ----------------- -->
+<div class="footer scroll-section">
+    <h5>Contributors: Harsh | Shaun | Abhiraj</h5>
+</div>
+
+<!-- ----------------- Scripts ----------------- -->
+<script>
+/* Scroll animation */
+const sections = document.querySelectorAll(".scroll-section");
+function revealSections(){
+    const triggerPoint = window.innerHeight - 100;
+    sections.forEach(section => {
+        const sectionTop = section.getBoundingClientRect().top;
+        if(sectionTop < triggerPoint) section.classList.add("show");
+    });
+}
+window.addEventListener("scroll", revealSections);
+window.addEventListener("load", revealSections);
+
+/* AJAX URL scanning */
+const form = document.getElementById("urlForm");
+const resultBox = document.getElementById("result");
+
+form.addEventListener("submit", async function(e){
+    e.preventDefault();
+    const url = document.getElementById("urlInput").value.trim();
+    if(!url) return;
+
+    resultBox.innerHTML = "Scanning URL... 🔍";
+
+    try {
+        const response = await fetch("/predict", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({url: url})
+        });
+        const data = await response.json();
+        let className = data.result.includes("Phishing") ? "phishing" : "safe";
+
+        resultBox.innerHTML = `
+            <div class="result-box ${className}">${data.result}</div>
+            <p class="reason">${data.reason || ""}</p>
+        `;
+    } catch(err) {
+        resultBox.innerHTML = "❌ Error scanning URL.";
+        console.error(err);
+    }
+});
+</script>
+
+</body>
+</html>
